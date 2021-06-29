@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net"
 	"github.com/victoryeo/cryptoexchange/engine"
@@ -15,18 +16,35 @@ const (
 // implement Server.
 type server struct {
 	pb.UnimplementedTradeEngineServer
+	sob []*pb.OrderBook
+	gob []engine.OrderBook
 }
 
 // implements rpc
-func (s *server) GetOrder(in *pb.Empty, stream pb.TradeEngine_GetOrderServer) error {
+func (s *server) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error) {
+	var data engine.Order
+	data.Price = msg.Price
+	data.Amount = msg.Quantity
+	if msg.Type == "buy" {
+		data.Side = 1
+	} else {
+		data.Side = 0
+	}
+	//write order to db
+	return &pb.Empty{}, nil
+}
+
+func (s *server) GetOrderStream(in *pb.Empty, stream pb.TradeEngine_GetOrderStreamServer) error {
+
 	return nil
 }
-func (s *server) GetTrade(in *pb.Empty, stream pb.TradeEngine_GetTradeServer) error {
+func (s *server) GetTradeStream(in *pb.Empty, stream pb.TradeEngine_GetTradeStreamServer) error {
 	return nil
 }
 func (s *server) SendTrade(stream pb.TradeEngine_SendTradeServer) error {
 	return nil
 }
+
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
@@ -49,19 +67,12 @@ func main() {
 
 	// start processing orders
 	go func() {
-		for msg := range consumer.Messages() {
-			var order engine.Order
-			// decode the message
-			order.FromJSON(msg.Value)
+		for {
+			// get order from db
+
 			// process the order
 			trades := book.Process(order)
-			// send trades to message queue
-			for _, trade := range trades {
-				rawTrade := trade.ToJSON()
-				
-			}
 			// mark the message as processed
-			consumer.MarkOffset(msg, "")
 		}
 		done <- true
 	}()

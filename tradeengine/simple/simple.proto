@@ -8,26 +8,31 @@ import "google/protobuf/timestamp.proto";
 
 service TradeEngine {
   // A simple RPC.
-  rpc sendOrder(OrderMessage) returns (Empty) {}
-  rpc GetOrderStream(Empty) returns (stream OrderMessage) {}
-  rpc GetTradeStream(Empty) returns (stream TradeMessage) {}
-  rpc SendTrade(stream TradeMessage) returns (Empty) {}
+  rpc sendOrder(Order) returns (Empty) {}
+  rpc GetOrderStream(Empty) returns (stream Order) {}
+  rpc GetTradeStream(Empty) returns (stream Trade) {}
+  rpc SendTrade(stream Trade) returns (Empty) {}
 }
 
 message Empty {
 
 }
 
-message OrderMessage {
+message Order {
   int32 id = 1;
   uint64 price = 2;
   uint32 quantity = 3;
   string type = 4;
 }
 
-message TradeMessage {
+message Trade {
   int32 id = 1;
   int32 price = 2;
   int32 quantity = 3;
   google.protobuf.Timestamp createdTime = 4;
+}
+
+message OrderBook {
+  Order buyOrder = 1;
+  Order sellOrder = 2;
 }

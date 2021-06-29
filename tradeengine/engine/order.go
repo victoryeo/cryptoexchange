@@ -3,7 +3,7 @@ package engine
 import "encoding/json"
 
 type Order struct {
-	Amount uint64 `json:"amount"`
+	Amount uint32 `json:"amount"`
 	Price  uint64 `json:"price"`
 	ID     string `json:"id"`
 	Side   int8   `json:"side"`
