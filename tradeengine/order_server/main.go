@@ -4,13 +4,15 @@ import (
 	"context"
 	"log"
 	"net"
+	"fmt"
+	"flag"
 	"github.com/victoryeo/cryptoexchange/engine"
 	pb "simple"
 	"google.golang.org/grpc"
 )
 
-const (
-	port = ":50051"
+var (
+	port       = flag.Int("port", 19000, "The server port")	
 )
 
 // implement Server.
@@ -30,7 +32,9 @@ func (s *server) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error
 	} else {
 		data.Side = 0
 	}
-	//write order to db
+	// write order to db
+	// stub code
+
 	return &pb.Empty{}, nil
 }
 
@@ -46,37 +50,29 @@ func (s *server) SendTrade(stream pb.TradeEngine_SendTradeServer) error {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", port)
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	s := grpc.NewServer()
-	pb.RegisterTradeEngineServer(s, &server{})
-	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	log.Printf("Start order server\n")
 
 	// create the order book
+	log.Printf("Create order book\n")
 	book := engine.OrderBook{
 		BuyOrders:  make([]engine.Order, 0, 100),
 		SellOrders: make([]engine.Order, 0, 100),
 	}
+	fmt.Printf("%v\n",book)
 
-	// create a signal channel to know when we are done
-	done := make(chan bool)
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	log.Printf("Start grpc server\n")
+	grpcServer := grpc.NewServer()
 
-	// start processing orders
-	go func() {
-		for {
-			// get order from db
+	log.Printf("Register trade engine server\n")
+	pb.RegisterTradeEngineServer(grpcServer, &server{})
 
-			// process the order
-			trades := book.Process(order)
-			// mark the message as processed
-		}
-		done <- true
-	}()
+	log.Printf("Serve grpc\n")
+	if err := grpcServer.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 
-	// wait until we are done
-	<-done
 }
