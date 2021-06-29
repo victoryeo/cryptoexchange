@@ -1,0 +1,13 @@
+This is the trade engine.
+
+The simple folder contains the protof definition. Run this command to generate the golang code. 
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative simple/simple.proto
+
+The engine contains the order, trade, order book, and order matching
+
+The order_server contains the order server that reads order from grpc, and returns matching order to order client.
+
+The order_client contains the client that sends order to order server.
+
+Read this page for help on creating and calling go module:
+https://golang.org/doc/tutorial/create-module

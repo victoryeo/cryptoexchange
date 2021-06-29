@@ -1,10 +1,11 @@
 package main
 
 import (
-	"example.com/engine"
 	"log"
+	"net"
+	"github.com/victoryeo/cryptoexchange/engine"
 	pb "simple"
-
+	"google.golang.org/grpc"
 )
 
 const (
@@ -17,15 +18,14 @@ type server struct {
 }
 
 // implements rpc
-func (s *server) GetOrder(ctx context.Context, in *pb.OrderID) (*pb.OrderMessage, error) {
-	log.Printf("Received: %v", in.GetName())
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
+func (s *server) GetOrder(in *pb.Empty, stream pb.TradeEngine_GetOrderServer) error {
+	return nil
 }
-func (s *server) GetTrade(ctx context.Context, in *pb.OrderID) (*pb.TradeMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTrade not implemented")
+func (s *server) GetTrade(in *pb.Empty, stream pb.TradeEngine_GetTradeServer) error {
+	return nil
 }
-func (s *server) SendTrade(ctx context.Context, in *pb.TradeMessage) (*pb.OrderID, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendTrade not implemented")
+func (s *server) SendTrade(stream pb.TradeEngine_SendTradeServer) error {
+	return nil
 }
 func main() {
 	lis, err := net.Listen("tcp", port)
@@ -58,10 +58,7 @@ func main() {
 			// send trades to message queue
 			for _, trade := range trades {
 				rawTrade := trade.ToJSON()
-				producer.Input() <- &sarama.ProducerMessage{
-					Topic: "trades",
-					Value: sarama.ByteEncoder(rawTrade),
-				}
+				
 			}
 			// mark the message as processed
 			consumer.MarkOffset(msg, "")

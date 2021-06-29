@@ -19,9 +19,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TradeEngineClient interface {
 	// A simple RPC.
-	GetOrder(ctx context.Context, in *OrderID, opts ...grpc.CallOption) (*OrderMessage, error)
-	GetTrade(ctx context.Context, in *OrderID, opts ...grpc.CallOption) (*TradeMessage, error)
-	SendTrade(ctx context.Context, in *TradeMessage, opts ...grpc.CallOption) (*OrderID, error)
+	GetOrder(ctx context.Context, in *Empty, opts ...grpc.CallOption) (TradeEngine_GetOrderClient, error)
+	GetTrade(ctx context.Context, in *Empty, opts ...grpc.CallOption) (TradeEngine_GetTradeClient, error)
+	SendTrade(ctx context.Context, opts ...grpc.CallOption) (TradeEngine_SendTradeClient, error)
 }
 
 type tradeEngineClient struct {
@@ -32,31 +32,102 @@ func NewTradeEngineClient(cc grpc.ClientConnInterface) TradeEngineClient {
 	return &tradeEngineClient{cc}
 }
 
-func (c *tradeEngineClient) GetOrder(ctx context.Context, in *OrderID, opts ...grpc.CallOption) (*OrderMessage, error) {
-	out := new(OrderMessage)
-	err := c.cc.Invoke(ctx, "/simple.TradeEngine/GetOrder", in, out, opts...)
+func (c *tradeEngineClient) GetOrder(ctx context.Context, in *Empty, opts ...grpc.CallOption) (TradeEngine_GetOrderClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TradeEngine_ServiceDesc.Streams[0], "/simple.TradeEngine/GetOrder", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &tradeEngineGetOrderClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
 }
 
-func (c *tradeEngineClient) GetTrade(ctx context.Context, in *OrderID, opts ...grpc.CallOption) (*TradeMessage, error) {
-	out := new(TradeMessage)
-	err := c.cc.Invoke(ctx, "/simple.TradeEngine/GetTrade", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
+type TradeEngine_GetOrderClient interface {
+	Recv() (*OrderMessage, error)
+	grpc.ClientStream
 }
 
-func (c *tradeEngineClient) SendTrade(ctx context.Context, in *TradeMessage, opts ...grpc.CallOption) (*OrderID, error) {
-	out := new(OrderID)
-	err := c.cc.Invoke(ctx, "/simple.TradeEngine/SendTrade", in, out, opts...)
+type tradeEngineGetOrderClient struct {
+	grpc.ClientStream
+}
+
+func (x *tradeEngineGetOrderClient) Recv() (*OrderMessage, error) {
+	m := new(OrderMessage)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *tradeEngineClient) GetTrade(ctx context.Context, in *Empty, opts ...grpc.CallOption) (TradeEngine_GetTradeClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TradeEngine_ServiceDesc.Streams[1], "/simple.TradeEngine/GetTrade", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &tradeEngineGetTradeClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type TradeEngine_GetTradeClient interface {
+	Recv() (*TradeMessage, error)
+	grpc.ClientStream
+}
+
+type tradeEngineGetTradeClient struct {
+	grpc.ClientStream
+}
+
+func (x *tradeEngineGetTradeClient) Recv() (*TradeMessage, error) {
+	m := new(TradeMessage)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *tradeEngineClient) SendTrade(ctx context.Context, opts ...grpc.CallOption) (TradeEngine_SendTradeClient, error) {
+	stream, err := c.cc.NewStream(ctx, &TradeEngine_ServiceDesc.Streams[2], "/simple.TradeEngine/SendTrade", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &tradeEngineSendTradeClient{stream}
+	return x, nil
+}
+
+type TradeEngine_SendTradeClient interface {
+	Send(*TradeMessage) error
+	CloseAndRecv() (*Empty, error)
+	grpc.ClientStream
+}
+
+type tradeEngineSendTradeClient struct {
+	grpc.ClientStream
+}
+
+func (x *tradeEngineSendTradeClient) Send(m *TradeMessage) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *tradeEngineSendTradeClient) CloseAndRecv() (*Empty, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(Empty)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // TradeEngineServer is the server API for TradeEngine service.
@@ -64,9 +135,9 @@ func (c *tradeEngineClient) SendTrade(ctx context.Context, in *TradeMessage, opt
 // for forward compatibility
 type TradeEngineServer interface {
 	// A simple RPC.
-	GetOrder(context.Context, *OrderID) (*OrderMessage, error)
-	GetTrade(context.Context, *OrderID) (*TradeMessage, error)
-	SendTrade(context.Context, *TradeMessage) (*OrderID, error)
+	GetOrder(*Empty, TradeEngine_GetOrderServer) error
+	GetTrade(*Empty, TradeEngine_GetTradeServer) error
+	SendTrade(TradeEngine_SendTradeServer) error
 	mustEmbedUnimplementedTradeEngineServer()
 }
 
@@ -74,14 +145,14 @@ type TradeEngineServer interface {
 type UnimplementedTradeEngineServer struct {
 }
 
-func (UnimplementedTradeEngineServer) GetOrder(context.Context, *OrderID) (*OrderMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
+func (UnimplementedTradeEngineServer) GetOrder(*Empty, TradeEngine_GetOrderServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetOrder not implemented")
 }
-func (UnimplementedTradeEngineServer) GetTrade(context.Context, *OrderID) (*TradeMessage, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTrade not implemented")
+func (UnimplementedTradeEngineServer) GetTrade(*Empty, TradeEngine_GetTradeServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetTrade not implemented")
 }
-func (UnimplementedTradeEngineServer) SendTrade(context.Context, *TradeMessage) (*OrderID, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SendTrade not implemented")
+func (UnimplementedTradeEngineServer) SendTrade(TradeEngine_SendTradeServer) error {
+	return status.Errorf(codes.Unimplemented, "method SendTrade not implemented")
 }
 func (UnimplementedTradeEngineServer) mustEmbedUnimplementedTradeEngineServer() {}
 
@@ -96,58 +167,72 @@ func RegisterTradeEngineServer(s grpc.ServiceRegistrar, srv TradeEngineServer) {
 	s.RegisterService(&TradeEngine_ServiceDesc, srv)
 }
 
-func _TradeEngine_GetOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrderID)
-	if err := dec(in); err != nil {
-		return nil, err
+func _TradeEngine_GetOrder_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(TradeEngineServer).GetOrder(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/simple.TradeEngine/GetOrder",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TradeEngineServer).GetOrder(ctx, req.(*OrderID))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(TradeEngineServer).GetOrder(m, &tradeEngineGetOrderServer{stream})
 }
 
-func _TradeEngine_GetTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OrderID)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TradeEngineServer).GetTrade(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/simple.TradeEngine/GetTrade",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TradeEngineServer).GetTrade(ctx, req.(*OrderID))
-	}
-	return interceptor(ctx, in, info, handler)
+type TradeEngine_GetOrderServer interface {
+	Send(*OrderMessage) error
+	grpc.ServerStream
 }
 
-func _TradeEngine_SendTrade_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TradeMessage)
-	if err := dec(in); err != nil {
+type tradeEngineGetOrderServer struct {
+	grpc.ServerStream
+}
+
+func (x *tradeEngineGetOrderServer) Send(m *OrderMessage) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _TradeEngine_GetTrade_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(Empty)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(TradeEngineServer).GetTrade(m, &tradeEngineGetTradeServer{stream})
+}
+
+type TradeEngine_GetTradeServer interface {
+	Send(*TradeMessage) error
+	grpc.ServerStream
+}
+
+type tradeEngineGetTradeServer struct {
+	grpc.ServerStream
+}
+
+func (x *tradeEngineGetTradeServer) Send(m *TradeMessage) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _TradeEngine_SendTrade_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(TradeEngineServer).SendTrade(&tradeEngineSendTradeServer{stream})
+}
+
+type TradeEngine_SendTradeServer interface {
+	SendAndClose(*Empty) error
+	Recv() (*TradeMessage, error)
+	grpc.ServerStream
+}
+
+type tradeEngineSendTradeServer struct {
+	grpc.ServerStream
+}
+
+func (x *tradeEngineSendTradeServer) SendAndClose(m *Empty) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *tradeEngineSendTradeServer) Recv() (*TradeMessage, error) {
+	m := new(TradeMessage)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
-	if interceptor == nil {
-		return srv.(TradeEngineServer).SendTrade(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/simple.TradeEngine/SendTrade",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TradeEngineServer).SendTrade(ctx, req.(*TradeMessage))
-	}
-	return interceptor(ctx, in, info, handler)
+	return m, nil
 }
 
 // TradeEngine_ServiceDesc is the grpc.ServiceDesc for TradeEngine service.
@@ -156,20 +241,23 @@ func _TradeEngine_SendTrade_Handler(srv interface{}, ctx context.Context, dec fu
 var TradeEngine_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "simple.TradeEngine",
 	HandlerType: (*TradeEngineServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "GetOrder",
-			Handler:    _TradeEngine_GetOrder_Handler,
+			StreamName:    "GetOrder",
+			Handler:       _TradeEngine_GetOrder_Handler,
+			ServerStreams: true,
 		},
 		{
-			MethodName: "GetTrade",
-			Handler:    _TradeEngine_GetTrade_Handler,
+			StreamName:    "GetTrade",
+			Handler:       _TradeEngine_GetTrade_Handler,
+			ServerStreams: true,
 		},
 		{
-			MethodName: "SendTrade",
-			Handler:    _TradeEngine_SendTrade_Handler,
+			StreamName:    "SendTrade",
+			Handler:       _TradeEngine_SendTrade_Handler,
+			ClientStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "simple/simple.proto",
 }
