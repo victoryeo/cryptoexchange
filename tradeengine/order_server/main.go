@@ -7,6 +7,7 @@ import (
 	"log"
 	"net"
 	pb "simple"
+	"strconv"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/victoryeo/cryptoexchange/engine"
@@ -33,17 +34,20 @@ type teServer struct {
 func (s *teServer) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error) {
 	var data engine.Order
 	data.Price = msg.Price
-	data.Amount = msg.Quantity
+	data.Quantity = msg.Quantity
+	data.Id = strconv.FormatInt(int64(msg.Id), 10)
 
 	log.Printf("Order id %d received\n", msg.Id)
 	if msg.Type == "buy" {
-		data.Side = 1
+		data.Type = 1
 	} else {
-		data.Side = 0
+		data.Type = 0
 	}
 	// write order to db
-	// stub code
-	err := s.rdb.HSet(ctx, "order", "id", msg.Id, "price", msg.Price).Err()
+	// redis code
+	err := s.rdb.HSet(ctx, "order", "id", msg.Id,
+		"price", msg.Price, "qty", msg.Quantity,
+		"type", msg.Type).Err()
 	if err != nil {
 		panic(err)
 	}
@@ -51,7 +55,7 @@ func (s *teServer) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, err
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("key", val)
+	fmt.Println("order", val)
 
 	return &pb.Empty{}, nil
 }

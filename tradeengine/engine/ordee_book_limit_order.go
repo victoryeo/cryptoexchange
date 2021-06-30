@@ -2,7 +2,7 @@ package engine
 
 // Process an order and return the trades generated before adding the remaining amount to the market
 func (book *OrderBook) Process(order Order) []Trade {
-	if order.Side == 1 {
+	if order.Type == 1 {
 		return book.processLimitBuy(order)
 	}
 	return book.processLimitSell(order)
@@ -21,18 +21,18 @@ func (book *OrderBook) processLimitBuy(order Order) []Trade {
 				break
 			}
 			// fill the entire order
-			if sellOrder.Amount >= order.Amount {
-				trades = append(trades, Trade{order.ID, sellOrder.ID, order.Amount, sellOrder.Price})
-				sellOrder.Amount -= order.Amount
-				if sellOrder.Amount == 0 {
+			if sellOrder.Quantity >= order.Quantity {
+				trades = append(trades, Trade{order.Id, sellOrder.Id, order.Quantity, sellOrder.Price})
+				sellOrder.Quantity -= order.Quantity
+				if sellOrder.Quantity == 0 {
 					book.removeSellOrder(i)
 				}
 				return trades
 			}
 			// fill a partial order and continue
-			if sellOrder.Amount < order.Amount {
-				trades = append(trades, Trade{order.ID, sellOrder.ID, sellOrder.Amount, sellOrder.Price})
-				order.Amount -= sellOrder.Amount
+			if sellOrder.Quantity < order.Quantity {
+				trades = append(trades, Trade{order.Id, sellOrder.Id, sellOrder.Quantity, sellOrder.Price})
+				order.Quantity -= sellOrder.Quantity
 				book.removeSellOrder(i)
 				continue
 			}
@@ -56,18 +56,18 @@ func (book *OrderBook) processLimitSell(order Order) []Trade {
 				break
 			}
 			// fill the entire order
-			if buyOrder.Amount >= order.Amount {
-				trades = append(trades, Trade{order.ID, buyOrder.ID, order.Amount, buyOrder.Price})
-				buyOrder.Amount -= order.Amount
-				if buyOrder.Amount == 0 {
+			if buyOrder.Quantity >= order.Quantity {
+				trades = append(trades, Trade{order.Id, buyOrder.Id, order.Quantity, buyOrder.Price})
+				buyOrder.Quantity -= order.Quantity
+				if buyOrder.Quantity == 0 {
 					book.removeBuyOrder(i)
 				}
 				return trades
 			}
 			// fill a partial order and continue
-			if buyOrder.Amount < order.Amount {
-				trades = append(trades, Trade{order.ID, buyOrder.ID, buyOrder.Amount, buyOrder.Price})
-				order.Amount -= buyOrder.Amount
+			if buyOrder.Quantity < order.Quantity {
+				trades = append(trades, Trade{order.Id, buyOrder.Id, buyOrder.Quantity, buyOrder.Price})
+				order.Quantity -= buyOrder.Quantity
 				book.removeBuyOrder(i)
 				continue
 			}
