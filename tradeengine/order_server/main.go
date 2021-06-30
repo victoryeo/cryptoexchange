@@ -8,6 +8,7 @@ import (
 	"net"
 	pb "simple"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/victoryeo/cryptoexchange/engine"
 	"google.golang.org/grpc"
 )
@@ -17,14 +18,15 @@ var (
 )
 
 // implement Server.
-type server struct {
+type teServer struct {
 	pb.UnimplementedTradeEngineServer
 	sob []*pb.OrderBook
 	gob []engine.OrderBook
+	rdb *redis.Client
 }
 
 // implements rpc
-func (s *server) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error) {
+func (s *teServer) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error) {
 	var data engine.Order
 	data.Price = msg.Price
 	data.Amount = msg.Quantity
@@ -37,19 +39,40 @@ func (s *server) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error
 	}
 	// write order to db
 	// stub code
+	err := s.rdb.HSet(ctx, "order", "id", msg.Id, "price", msg.Price).Err()
+	if err != nil {
+		panic(err)
+	}
+	val, err := s.rdb.HGetAll(ctx, "order").Result()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("key", val)
 
 	return &pb.Empty{}, nil
 }
 
-func (s *server) GetOrderStream(in *pb.Empty, stream pb.TradeEngine_GetOrderStreamServer) error {
+func (s *teServer) GetOrderStream(in *pb.Empty, stream pb.TradeEngine_GetOrderStreamServer) error {
 
 	return nil
 }
-func (s *server) GetTradeStream(in *pb.Empty, stream pb.TradeEngine_GetTradeStreamServer) error {
+func (s *teServer) GetTradeStream(in *pb.Empty, stream pb.TradeEngine_GetTradeStreamServer) error {
 	return nil
 }
-func (s *server) SendTrade(stream pb.TradeEngine_SendTradeServer) error {
+func (s *teServer) SendTrade(stream pb.TradeEngine_SendTradeServer) error {
 	return nil
+}
+
+func newServer() *teServer {
+	//var ctx = context.Background()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+	fmt.Printf("%v\n", rdb)
+	s := &teServer{rdb: rdb}
+	return s
 }
 
 func main() {
@@ -71,7 +94,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 
 	log.Printf("Register trade engine server\n")
-	pb.RegisterTradeEngineServer(grpcServer, &server{})
+	pb.RegisterTradeEngineServer(grpcServer, newServer())
 
 	log.Printf("Serve grpc\n")
 	if err := grpcServer.Serve(lis); err != nil {
