@@ -2,17 +2,18 @@ package main
 
 import (
 	"context"
+	"flag"
+	"fmt"
 	"log"
 	"net"
-	"fmt"
-	"flag"
-	"github.com/victoryeo/cryptoexchange/engine"
 	pb "simple"
+
+	"github.com/victoryeo/cryptoexchange/engine"
 	"google.golang.org/grpc"
 )
 
 var (
-	port       = flag.Int("port", 19000, "The server port")	
+	port = flag.Int("port", 19000, "The server port")
 )
 
 // implement Server.
@@ -27,6 +28,8 @@ func (s *server) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, error
 	var data engine.Order
 	data.Price = msg.Price
 	data.Amount = msg.Quantity
+
+	log.Printf("Order id %d received\n", msg.Id)
 	if msg.Type == "buy" {
 		data.Side = 1
 	} else {
@@ -58,7 +61,7 @@ func main() {
 		BuyOrders:  make([]engine.Order, 0, 100),
 		SellOrders: make([]engine.Order, 0, 100),
 	}
-	fmt.Printf("%v\n",book)
+	fmt.Printf("%v\n", book)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", *port))
 	if err != nil {
