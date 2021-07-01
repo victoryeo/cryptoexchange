@@ -11,6 +11,9 @@ const app = express()
 
 router.get('/', (req, res) => {
     console.log("Hello Bitgo")
+    res.setHeader('Content-Type', 'application/json')
+    res.write(JSON.stringify({title:"Hello Bitgo"}));
+    res.end();
 })
 
 router.post('/', async (req, res) => {
