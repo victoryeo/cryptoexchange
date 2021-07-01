@@ -45,13 +45,14 @@ func (s *teServer) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, err
 	}
 	// write order to db
 	// redis code
-	err := s.rdb.HSet(ctx, "order", "id", msg.Id,
+	key := "order" + strconv.Itoa(int(msg.Id))
+	err := s.rdb.HSet(ctx, key, "id", msg.Id,
 		"price", msg.Price, "qty", msg.Quantity,
-		"type", msg.Type).Err()
+		"type", msg.Type, "processed", false).Err()
 	if err != nil {
 		panic(err)
 	}
-	val, err := s.rdb.HGetAll(ctx, "order").Result()
+	val, err := s.rdb.HGetAll(ctx, key).Result()
 	if err != nil {
 		panic(err)
 	}

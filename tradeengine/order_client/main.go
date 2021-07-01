@@ -53,4 +53,8 @@ func main() {
 	order := &pb.Order{Id: 1, Price: 10, Quantity: 100, Type: "buy"}
 	ret, err := client.SendOrder(ctx, order)
 	log.Printf("SendOrder return value %d\n", ret)
+
+	order = &pb.Order{Id: 2, Price: 10, Quantity: 100, Type: "sell"}
+	ret, err = client.SendOrder(ctx, order)
+	log.Printf("SendOrder return value %d\n", ret)
 }
