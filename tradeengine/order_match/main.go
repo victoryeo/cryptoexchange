@@ -41,46 +41,53 @@ func main() {
 				panic(err)
 			}
 			fmt.Printf("%v\n", allVal)
+			fmt.Printf("allval %d\n", len(allVal))
 			if len(allVal) == 0 {
 				done <- true
-			}
-
-			//scanVal := rdb.HScan(ctx, "order", 0, "*", 0)
-			//fmt.Println("scan", scanVal)
-
-			for index, element := range allVal {
-				fmt.Println("Key:", index, "=>", "Value:", element)
-			}
-			/*
-				var buf bytes.Buffer
-				enc := gob.NewEncoder(&buf)
-				// encoding the map
-				err = enc.Encode(allVal)
-				fmt.Printf("%v\n", buf)
-				// convert to byte array
-				var orderHolder []byte
-				orderHolder = buf.Bytes()
-				fmt.Printf("orderHolder\n")
-				fmt.Printf("%v\n", orderHolder) */
-
-			// decode the message
-			price, err := strconv.Atoi(allVal["price"])
-			order.Price = uint64(price)
-			qty, err := strconv.Atoi(allVal["qty"])
-			order.Quantity = uint32(qty)
-			if allVal["type"] == "buy" {
-				order.Type = 1
 			} else {
-				order.Type = 0
+				//scanVal := rdb.HScan(ctx, "order", 0, "*", 0)
+				//fmt.Println("scan", scanVal)
+
+				for index, element := range allVal {
+					fmt.Println("Key:", index, "=>", "Value:", element)
+				}
+				/*
+					var buf bytes.Buffer
+					enc := gob.NewEncoder(&buf)
+					// encoding the map
+					err = enc.Encode(allVal)
+					fmt.Printf("%v\n", buf)
+					// convert to byte array
+					var orderHolder []byte
+					orderHolder = buf.Bytes()
+					fmt.Printf("orderHolder\n")
+					fmt.Printf("%v\n", orderHolder) */
+
+				// decode the message
+				price, err := strconv.Atoi(allVal["price"])
+				if err != nil {
+					log.Println(err)
+				}
+				order.Price = uint64(price)
+				qty, err := strconv.Atoi(allVal["qty"])
+				order.Quantity = uint32(qty)
+				if allVal["type"] == "buy" {
+					order.Type = 1
+				} else {
+					order.Type = 0
+				}
+				fmt.Printf("order\n")
+				fmt.Printf("%v\n", order)
+
+				// process the order
+				trades := book.Process(order)
+				fmt.Printf("match trade %v\n", trades)
 			}
-			fmt.Printf("order\n")
-			fmt.Printf("%v\n", order)
-			// process the order
-			//trades := book.Process(order)
-			//fmt.Printf("%v\n", trades)
 		}
 	}()
 
 	// wait until we are done
 	<-done
+
+	fmt.Printf("%v\n", book)
 }
