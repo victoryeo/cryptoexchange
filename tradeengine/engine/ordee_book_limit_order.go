@@ -1,5 +1,7 @@
 package engine
 
+import "fmt"
+
 // Process an order and return the trades generated before adding the remaining amount to the market
 func (book *OrderBook) Process(order Order) []Trade {
 	if order.Type == 1 {
@@ -11,9 +13,11 @@ func (book *OrderBook) Process(order Order) []Trade {
 // Process a limit buy order
 func (book *OrderBook) processLimitBuy(order Order) []Trade {
 	trades := make([]Trade, 0, 1)
+	fmt.Printf("buy trade %v\n", trades)
 	n := len(book.SellOrders)
+	fmt.Printf("slen %d\n", n)
 	// check if we have at least one matching order
-	if n != 0 || book.SellOrders[n-1].Price <= order.Price {
+	if n >= 1 && book.SellOrders[n-1].Price <= order.Price {
 		// traverse all orders that match
 		for i := n - 1; i >= 0; i-- {
 			sellOrder := book.SellOrders[i]
@@ -46,9 +50,11 @@ func (book *OrderBook) processLimitBuy(order Order) []Trade {
 // Process a limit sell order
 func (book *OrderBook) processLimitSell(order Order) []Trade {
 	trades := make([]Trade, 0, 1)
+	fmt.Printf("sell trade %v\n", trades)
 	n := len(book.BuyOrders)
+	fmt.Printf("blen %d\n", n)
 	// check if we have at least one matching order
-	if n != 0 || book.BuyOrders[n-1].Price >= order.Price {
+	if n >= 1 || book.BuyOrders[n-1].Price >= order.Price {
 		// traverse all orders that match
 		for i := n - 1; i >= 0; i-- {
 			buyOrder := book.BuyOrders[i]
