@@ -28,12 +28,17 @@ router.post('/', async (req, res) => {
     // create a btc wallet
     const { wallet } = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
     console.dir(wallet);
-
     app.locals.wallet = wallet
+
+    app.locals.holder = "testwallet"
+    res.setHeader('Content-Type', 'application/json')
+    res.write(JSON.stringify({title:"Init Bitgo"}));
+    res.end();
 })
 
 router.post('/send/:dest', async (req, res) => {
     console.log("send order")
+    console.log(req.params.dest); 
     console.log(req.body); 
   
     wallet = app.locals.wallet
@@ -44,8 +49,10 @@ router.post('/send/:dest', async (req, res) => {
       walletPassphrase:  "hellobitgo"
     });
 
+    holder = app.locals.holder
+    console.log(holder)
     res.setHeader('Content-Type', 'application/json')
-    res.write(req.body);
+    res.write(JSON.stringify({address:req.params.dest,amount:req.body.amount}));
     res.end();
 })
 module.exports = router

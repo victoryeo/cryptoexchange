@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -17,7 +18,12 @@ type Response struct {
 	Title string `json:"title"`
 }
 
-func crypto_interface() {
+type SendResponse struct {
+	Address string `json:"address"`
+	Amount  uint32 `json:"amount"`
+}
+
+func crypto_interface_get() {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "http://127.0.0.1:8081/", nil)
 	if err != nil {
@@ -47,6 +53,82 @@ func crypto_interface() {
 			fmt.Print(err.Error())
 		}
 		var responseObject Response
+		json.Unmarshal(bodyBytes, &responseObject)
+		fmt.Printf("API Response as struct %+v\n", responseObject)
+	}
+}
+
+func crypto_interface_init() {
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", "http://127.0.0.1:8081/", nil)
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Print("http do error ")
+		fmt.Println(err.Error())
+	}
+
+	defer func() {
+		if resp != nil {
+			err = resp.Body.Close()
+			if err != nil {
+				fmt.Print("http close error ")
+				fmt.Print(err.Error())
+			}
+		}
+	}()
+	if resp != nil {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Print("http read error ")
+			fmt.Print(err.Error())
+		}
+		var responseObject Response
+		json.Unmarshal(bodyBytes, &responseObject)
+		fmt.Printf("API Response as struct %+v\n", responseObject)
+	}
+}
+
+func crypto_interface_send(qty uint32) {
+	client := &http.Client{}
+
+	const address = "fe30945738"
+	//var jsonStr = []byte(`{"amount":qty}`)
+	pb := &SendResponse{Address: address, Amount: qty}
+	jsonStr, err := json.Marshal(pb)
+
+	req, err := http.NewRequest("POST", "http://127.0.0.1:8081/send/"+address, bytes.NewBuffer(jsonStr))
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("Content-Type", "application/json")
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Print("http do error ")
+		fmt.Println(err.Error())
+	}
+
+	defer func() {
+		if resp != nil {
+			err = resp.Body.Close()
+			if err != nil {
+				fmt.Print("http close error ")
+				fmt.Print(err.Error())
+			}
+		}
+	}()
+	if resp != nil {
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Print("http read error ")
+			fmt.Print(err.Error())
+		}
+		var responseObject SendResponse
 		json.Unmarshal(bodyBytes, &responseObject)
 		fmt.Printf("API Response as struct %+v\n", responseObject)
 	}
@@ -126,7 +208,8 @@ func main() {
 				fmt.Printf("match trade %v\n", trades)
 
 				// forware the trade to crypto API
-				crypto_interface()
+				crypto_interface_init()
+				crypto_interface_send(order.Quantity)
 			}
 		}
 	}()
