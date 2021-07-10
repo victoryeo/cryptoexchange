@@ -62,7 +62,6 @@ func (s *teServer) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, err
 }
 
 func (s *teServer) GetOrderStream(in *pb.Empty, stream pb.TradeEngine_GetOrderStreamServer) error {
-
 	return nil
 }
 func (s *teServer) GetTradeStream(in *pb.Empty, stream pb.TradeEngine_GetTradeStreamServer) error {
