@@ -9,5 +9,7 @@ The order_server contains the order server that reads order from grpc, and retur
 
 The order_client contains the client that sends order to order server.
 
+The order_match contains the code to match buy order with sell order.
+
 Read this page for help on creating and calling GO module:
 https://golang.org/doc/tutorial/create-module
