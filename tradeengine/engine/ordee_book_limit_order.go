@@ -21,6 +21,7 @@ func (book *OrderBook) processLimitBuy(order Order) []Trade {
 		// traverse all orders that match
 		for i := n - 1; i >= 0; i-- {
 			sellOrder := book.SellOrders[i]
+			// break from for loop if sell price in Q is > order price
 			if sellOrder.Price > order.Price {
 				break
 			}
@@ -58,6 +59,7 @@ func (book *OrderBook) processLimitSell(order Order) []Trade {
 		// traverse all orders that match
 		for i := n - 1; i >= 0; i-- {
 			buyOrder := book.BuyOrders[i]
+			// break from for loop if buy price in Q is < order price
 			if buyOrder.Price < order.Price {
 				break
 			}
