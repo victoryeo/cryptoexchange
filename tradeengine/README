@@ -5,11 +5,14 @@ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=p
 
 The engine contains the order, trade, order book, and order matching
 
+## Components
 The order_server contains the order server that reads order from grpc, and returns matching order to order client.
 
 The order_client contains the client that sends order to order server.
 
 The order_match contains the code to match buy order with sell order.
+
+The engine contains the order structure and functions.
 
 Read this page for help on creating and calling GO module:
 https://golang.org/doc/tutorial/create-module
