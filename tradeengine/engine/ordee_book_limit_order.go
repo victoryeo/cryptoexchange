@@ -55,7 +55,7 @@ func (book *OrderBook) processLimitSell(order Order) []Trade {
 	n := len(book.BuyOrders)
 	fmt.Printf("blen %d\n", n)
 	// check if we have at least one matching order
-	if n >= 1 || book.BuyOrders[n-1].Price >= order.Price {
+	if n >= 1 && book.BuyOrders[n-1].Price >= order.Price {
 		// traverse all orders that match
 		for i := n - 1; i >= 0; i-- {
 			buyOrder := book.BuyOrders[i]
