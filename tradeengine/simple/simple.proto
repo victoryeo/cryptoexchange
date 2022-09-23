@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "simple";
+option go_package = "github.com/victoryeo/cryptoexchange/simple";
 
 package simple;
 
