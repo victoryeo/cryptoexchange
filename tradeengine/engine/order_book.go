@@ -16,7 +16,7 @@ func (book *OrderBook) addBuyOrder(order Order) {
 		book.BuyOrders = append(book.BuyOrders, order)
 	} else {
 		var i int
-		for i := n - 1; i >= 0; i-- {
+		for i = n - 1; i >= 0; i-- {
 			buyOrder := book.BuyOrders[i]
 			if buyOrder.Price < order.Price {
 				break
@@ -38,7 +38,7 @@ func (book *OrderBook) addSellOrder(order Order) {
 		book.SellOrders = append(book.SellOrders, order)
 	} else {
 		var i int
-		for i := n - 1; i >= 0; i-- {
+		for i = n - 1; i >= 0; i-- {
 			sellOrder := book.SellOrders[i]
 			if sellOrder.Price > order.Price {
 				break
