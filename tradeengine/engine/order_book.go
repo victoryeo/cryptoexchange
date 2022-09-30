@@ -18,7 +18,7 @@ func (book *OrderBook) addBuyOrder(order Order) {
 		var i int
 		for i = n - 1; i >= 0; i-- {
 			buyOrder := book.BuyOrders[i]
-			if buyOrder.Price < order.Price {
+			if buyOrder.Price <= order.Price {
 				break
 			}
 		}
@@ -40,7 +40,7 @@ func (book *OrderBook) addSellOrder(order Order) {
 		var i int
 		for i = n - 1; i >= 0; i-- {
 			sellOrder := book.SellOrders[i]
-			if sellOrder.Price > order.Price {
+			if sellOrder.Price >= order.Price {
 				break
 			}
 		}
