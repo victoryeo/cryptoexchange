@@ -3,10 +3,12 @@ package engine
 import "encoding/json"
 
 type Order struct {
-	Id       string `json:"id"`
-	Type     int8   `json:"side"`
-	Price    uint64 `json:"price"`
-	Quantity uint32 `json:"quantity"`
+	Id        string `json:"id"`
+	TokenType string `json:"tokenType"`
+	TokenName string `json:"tokenName"`
+	Type      int8   `json:"side"`
+	Price     uint64 `json:"price"`
+	Quantity  uint32 `json:"quantity"`
 }
 
 func (order *Order) FromJSON(msg []byte) error {
