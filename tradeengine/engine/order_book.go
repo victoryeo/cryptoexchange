@@ -8,6 +8,8 @@ type OrderBook struct {
 	SellOrders []Order
 }
 
+type MapOrderBook map[string]OrderBook
+
 // Add a buy order to the order book
 func (book *OrderBook) addBuyOrder(order Order) {
 	n := len(book.BuyOrders)
