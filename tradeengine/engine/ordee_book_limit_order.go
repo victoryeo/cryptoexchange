@@ -10,6 +10,7 @@ func (book *OrderBook) Process(order Order) []Trade {
 		return book.processLimitSell(order)
 	} else {
 		fmt.Print("wrong order type\n")
+		return nil
 	}
 }
 
