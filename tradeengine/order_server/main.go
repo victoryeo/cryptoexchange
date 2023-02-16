@@ -45,8 +45,8 @@ func (s *teServer) SendOrder(ctx context.Context, msg *pb.Order) (*pb.Empty, err
 	}
 	// write order to db
 	// redis code
-	key := "order" + strconv.Itoa(int(msg.Id))
-	//key := msg.TokenName + msg.TokenType
+	//key := "order" + strconv.Itoa(int(msg.Id))
+	key := msg.TokenName + msg.TokenType
 	err := s.rdb.HSet(ctx, key, "id", msg.Id,
 		"price", msg.Price, "qty", msg.Quantity,
 		"type", msg.Type, "tokenName", msg.TokenName,
