@@ -23,6 +23,8 @@ message Order {
   uint64 price = 2;
   uint32 quantity = 3;
   string type = 4;
+  string tokenName = 5;
+  string tokenType = 6;
 }
 
 message Trade {
@@ -30,6 +32,8 @@ message Trade {
   int32 price = 2;
   int32 quantity = 3;
   google.protobuf.Timestamp createdTime = 4;
+  string tokenName = 5;
+  string tokenType = 6;
 }
 
 message OrderBook {
