@@ -127,6 +127,8 @@ func main() {
 	// create a signal channel to know when we are done
 	done := make(chan bool, 1)
 
+	//var mOrderBook = make(engine.MapOrderBook, 0)
+
 	// start processing orders
 	go func() {
 		for i := 1; i < ORDERBOOK_LEN; i++ {
@@ -136,8 +138,8 @@ func main() {
 				fmt.Printf("Caught signal %v: terminating\n", sig)
 				done <- false
 			default:
-				key := "order" + strconv.Itoa(i)
-				allVal, err := rdb.HGetAll(ctx, key).Result()
+				orderKey := "order" + strconv.Itoa(i)
+				allVal, err := rdb.HGetAll(ctx, orderKey).Result()
 				if err != nil {
 					panic(err)
 				}
