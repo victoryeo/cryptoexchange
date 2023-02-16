@@ -50,11 +50,11 @@ func main() {
 	log.Printf("Call SendOrder\n")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	order := &pb.Order{Id: 1, Price: 10, Quantity: 100, Type: "buy"}
+	order := &pb.Order{Id: 1, Price: 10, Quantity: 100, Type: "buy", TokenName: "AAPL", TokenType: "stock"}
 	ret, err := client.SendOrder(ctx, order)
 	log.Printf("SendOrder return value %d\n", ret)
 
-	order = &pb.Order{Id: 2, Price: 10, Quantity: 100, Type: "sell"}
+	order = &pb.Order{Id: 2, Price: 10, Quantity: 100, Type: "sell", TokenName: "AAPL", TokenType: "stock"}
 	ret, err = client.SendOrder(ctx, order)
 	log.Printf("SendOrder return value %d\n", ret)
 }
