@@ -6,8 +6,11 @@ import "fmt"
 func (book *OrderBook) Process(order Order) []Trade {
 	if order.Type == 1 {
 		return book.processLimitBuy(order)
+	} else if order.Type == 0 {
+		return book.processLimitSell(order)
+	} else {
+		fmt.Print("wrong order type\n")
 	}
-	return book.processLimitSell(order)
 }
 
 // Process a limit buy order
