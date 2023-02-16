@@ -188,8 +188,10 @@ func main() {
 					fmt.Printf("match trade %v\n", trades)
 
 					// forware the trade to crypto API
-					crypto_interface_init()
-					crypto_interface_send(order.Quantity)
+					if len(trades) > 0 {
+						crypto_interface_init()
+						crypto_interface_send(order.Quantity)
+					}
 				}
 			}
 		}
