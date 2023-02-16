@@ -154,13 +154,14 @@ func main() {
 				for _, key := range keys {
 					if key != "all_tokens" {
 						fmt.Println("key", key)
+						// read data according to key
 						allVal, err := rdb.HGetAll(ctx, key).Result()
 						if err != nil {
 							panic(err)
 						}
 						fmt.Println("val", allVal)
 
-						// delete data from redis
+						// after reading, delete data from redis
 						_, err = rdb.Del(ctx, key).Result()
 						if err != nil {
 							log.Println(err)
@@ -171,7 +172,7 @@ func main() {
 							time.Sleep(2 * time.Second)
 							continue
 						} else {
-							fmt.Printf("%v\n", allVal)
+							//fmt.Printf("%v\n", allVal)
 							fmt.Printf("allval %d\n", len(allVal))
 							//scanVal := rdb.HScan(ctx, "order", 0, "*", 0)
 							//fmt.Println("scan", scanVal)
