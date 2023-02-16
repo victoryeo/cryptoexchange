@@ -25,9 +25,18 @@ func (book *OrderBook) addBuyOrder(order Order) {
 			}
 		}
 		if i == n-1 {
-			book.BuyOrders = append(book.BuyOrders, order)
+			book.BuyOrders = append([]Order{order}, book.BuyOrders...)
+		} else if i == n-1 {
+			if book.BuyOrders[i].Price == order.Price {
+				fmt.Printf("%f %d\n", book.BuyOrders[i].Price, i)
+				book.BuyOrders = append(book.BuyOrders[:i+1], book.BuyOrders[i:]...)
+				book.BuyOrders[i] = order
+			} else {
+				book.BuyOrders = append(book.BuyOrders, order)
+			}
 		} else {
-			copy(book.BuyOrders[i+1:], book.BuyOrders[i:])
+			i++
+			book.BuyOrders = append(book.BuyOrders[:i+1], book.BuyOrders[i:]...)
 			book.BuyOrders[i] = order
 		}
 	}
@@ -47,9 +56,19 @@ func (book *OrderBook) addSellOrder(order Order) {
 			}
 		}
 		if i == n-1 {
-			book.SellOrders = append(book.SellOrders, order)
+			book.SellOrders = append([]Order{order}, book.SellOrders...)
+		} else if i == n-1 {
+			if book.SellOrders[i].Price == order.Price {
+				fmt.Printf("%f %d\n", book.SellOrders[i].Price, i)
+				book.SellOrders = append(book.SellOrders[:i+1], book.SellOrders[i:]...)
+				book.SellOrders[i] = order
+			} else {
+				fmt.Printf("%f\n", book.SellOrders[i].Price)
+				book.SellOrders = append(book.SellOrders, order)
+			}
 		} else {
-			copy(book.SellOrders[i+1:], book.SellOrders[i:])
+			i++
+			book.SellOrders = append(book.SellOrders[:i+1], book.SellOrders[i:]...)
 			book.SellOrders[i] = order
 		}
 	}
