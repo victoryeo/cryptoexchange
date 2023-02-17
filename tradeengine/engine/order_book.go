@@ -83,3 +83,7 @@ func (book *OrderBook) removeBuyOrder(index int) {
 func (book *OrderBook) removeSellOrder(index int) {
 	book.SellOrders = append(book.SellOrders[:index], book.SellOrders[index+1:]...)
 }
+
+func (s MapOrderBook) Add(k string, v OrderBook) {
+	s[k] = v
+}

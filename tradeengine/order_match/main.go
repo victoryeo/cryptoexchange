@@ -118,16 +118,17 @@ func main() {
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
 	// create the order book
-	book := engine.OrderBook{
-		BuyOrders:  make([]engine.Order, 0, ORDERBOOK_LEN),
-		SellOrders: make([]engine.Order, 0, ORDERBOOK_LEN),
-	}
-	log.Printf("%v\n", book)
+	var book engine.OrderBook
+	//book := engine.OrderBook{
+	//	BuyOrders:  make([]engine.Order, 0, ORDERBOOK_LEN),
+	//	SellOrders: make([]engine.Order, 0, ORDERBOOK_LEN),
+	//}
+	//log.Printf("%v\n", book)
 
 	// create a signal channel to know when we are done
 	done := make(chan bool, 1)
 
-	//var mOrderBook = make(engine.MapOrderBook, 0)
+	var mOrderBook = make(engine.MapOrderBook, 0)
 
 	// start processing orders
 	go func() {
@@ -154,6 +155,17 @@ func main() {
 				for _, key := range keys {
 					if key != "all_tokens" {
 						fmt.Println("key", key)
+						if val, ok := mOrderBook[key]; ok {
+							fmt.Print("key exist ", val, "\n")
+						} else {
+							fmt.Println("key not exist ")
+							// create the order book
+							book = engine.OrderBook{
+								BuyOrders:  make([]engine.Order, 0, ORDERBOOK_LEN),
+								SellOrders: make([]engine.Order, 0, ORDERBOOK_LEN),
+							}
+							log.Printf("%v\n", book)
+						}
 						// read data according to key
 						allVal, err := rdb.HGetAll(ctx, key).Result()
 						if err != nil {
@@ -200,6 +212,7 @@ func main() {
 							// process the order
 							trades := book.Process(order)
 							fmt.Printf("match trade %v\n", trades)
+							mOrderBook.Add(key, book)
 
 							// forware the trade to crypto API
 							if len(trades) > 0 {
