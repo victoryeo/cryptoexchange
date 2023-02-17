@@ -12,7 +12,6 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
-	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/victoryeo/cryptoexchange/engine"
@@ -107,6 +106,9 @@ func main() {
 	log.Printf("Start order matching\n")
 	const ORDERBOOK_LEN = 100
 	var ctx = context.Background()
+	// create new context with cancellation from orig context
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set
@@ -126,7 +128,7 @@ func main() {
 	//log.Printf("%v\n", book)
 
 	// create a signal channel to know when we are done
-	done := make(chan bool, 1)
+	done := make(chan bool, 0)
 
 	var mOrderBook = make(engine.MapOrderBook, 0)
 
@@ -137,7 +139,7 @@ func main() {
 			select {
 			case sig := <-sigchan:
 				fmt.Printf("Caught signal %v: terminating\n", sig)
-				done <- false
+				done <- true
 			default:
 				//orderKey := "order" + strconv.Itoa(i)
 				//allVal, err := rdb.HGetAll(ctx, orderKey).Result()
@@ -181,7 +183,7 @@ func main() {
 
 						if len(allVal) == 0 {
 							//done <- true
-							time.Sleep(2 * time.Second)
+							//time.Sleep(2 * time.Second)
 							continue
 						} else {
 							//fmt.Printf("%v\n", allVal)
