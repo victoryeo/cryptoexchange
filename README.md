@@ -8,6 +8,6 @@ The flow chart of buy process is shown below.
 
 ![buy diagram](https://github.com/victoryeo/cryptoexchange/blob/master/exchange_buy_diagram.png?raw=true)
 
-Trade engine README:  
+More info is at Trade Engine README:  
 https://github.com/victoryeo/cryptoexchange/tree/master/tradeengine
 

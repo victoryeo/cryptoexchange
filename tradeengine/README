@@ -12,7 +12,7 @@ The order_client contains the client that sends order to order server.
 
 The order_match contains the code to match buy order with sell order.
 
-The engine contains the order structure and functions.
+The tradeengine contains the order structure and functions. The tradeengine uses a multi queue order book design. Each order book is denoted by combination of orderName + orderType. There are separate buy queue and sell queue in each order book.
 
 Read this page for help on creating and calling GO module:
 https://golang.org/doc/tutorial/create-module
