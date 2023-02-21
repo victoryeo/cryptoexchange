@@ -7,3 +7,7 @@ It is written in Golang and NodeJS. BitGoJS SDK is used to interface to crypto.
 The flow chart of buy process is shown below.
 
 ![buy diagram](https://github.com/victoryeo/cryptoexchange/blob/master/exchange_buy_diagram.png?raw=true)
+
+Trade engine README:  
+https://github.com/victoryeo/cryptoexchange/tree/master/tradeengine
+
