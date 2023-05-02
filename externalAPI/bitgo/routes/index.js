@@ -1,13 +1,17 @@
 const express       = require('express')
 const BitGo = require('bitgo')
 const { BitGoAPI } = require('@bitgo/sdk-api');
+const { Tbtc } = require('@bitgo/sdk-coin-btc');
 require('dotenv').config()
 
 // init the sdk
 const newbitgo = new BitGoAPI({ env: 'test' });
 //const bitgo = new BitGo.BitGo({ env: process.env.mode,
 //    accessToken: process.env.accessToken4 });
-  
+
+// register coin
+newbitgo.register('tbtc', Tbtc.createInstance);
+
 const router = express.Router()
 const app = express()
 
