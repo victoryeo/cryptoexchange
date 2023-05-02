@@ -81,20 +81,33 @@ router.post('/', async (req, res) => {
     res.end();
 })
 
+router.get('/address', async (req, res) => {
+  let wallet = app.locals.wallet
+  console.log(wallet)
+  const address = await wallet.wallet.createAddress({
+    // Required for ECDSA assets, such as ETH and MATIC 
+    walletVersion: 3, 
+  });
+  console.log(JSON.stringify(address, undefined, 2));
+  res.setHeader('Content-Type', 'application/json')
+  res.write(JSON.stringify(address, undefined, 2));
+  res.end();
+})
+
 router.post('/send/:dest', async (req, res) => {
     console.log("send order")
     console.log(req.params.dest); 
     console.log(req.body); 
   
-    wallet = app.locals.wallet
+    let wallet = app.locals.wallet
     // send crypto to another address
-    result = await wallet.send({
+    let result = await wallet.send({
       address: req.params.dest,
       amount: 0.01 * 1e8,
       walletPassphrase:  "hellobitgo"
     });
 
-    holder = app.locals.holder
+    let holder = app.locals.holder
     console.log(holder)
     res.setHeader('Content-Type', 'application/json')
     res.write(JSON.stringify({address:req.params.dest,amount:req.body.amount}));
