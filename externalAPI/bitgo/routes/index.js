@@ -101,7 +101,7 @@ router.post('/send/:dest', async (req, res) => {
   
     let wallet = app.locals.wallet
     // send crypto to another address
-    let result = await wallet.send({
+    let result = await wallet.wallet.send({
       address: req.params.dest,
       amount: 0.01 * 1e8,
       walletPassphrase:  "hellobitgo"
