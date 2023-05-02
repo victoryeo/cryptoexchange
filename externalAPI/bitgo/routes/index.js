@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
         },
       ],
     });
-    console.log(access_token);
+    //console.log(access_token);
 
     // Initialize the wallet
     const bitgo = new BitGo({
@@ -83,7 +83,11 @@ router.post('/', async (req, res) => {
 
 router.get('/address', async (req, res) => {
   let wallet = app.locals.wallet
+  console.log("Get address")
   console.log(wallet)
+  console.log('Wallet ID:', wallet.wallet.id());
+  console.log('Current Receive Address:', wallet.wallet.receiveAddress());
+  console.log('Balance:', wallet.wallet.balanceString());
   const address = await wallet.wallet.createAddress({
     // Required for ECDSA assets, such as ETH and MATIC 
     walletVersion: 3, 
@@ -95,22 +99,28 @@ router.get('/address', async (req, res) => {
 })
 
 router.post('/send/:dest', async (req, res) => {
-    console.log("send order")
+    console.log("Send coin")
     console.log(req.params.dest); 
     console.log(req.body); 
   
     let wallet = app.locals.wallet
     // send crypto to another address
-    let result = await wallet.wallet.send({
-      address: req.params.dest,
-      amount: 0.01 * 1e8,
-      walletPassphrase:  "hellobitgo"
-    });
+    try {
+      let result = await wallet.wallet.send({
+        address: req.params.dest,
+        amount: 0.01 * 1e8,
+        walletPassphrase:  "hellobitgo"
+      });
 
-    let holder = app.locals.holder
-    console.log(holder)
-    res.setHeader('Content-Type', 'application/json')
-    res.write(JSON.stringify({address:req.params.dest,amount:req.body.amount}));
-    res.end();
+      let holder = app.locals.holder
+      console.log(holder)
+      res.setHeader('Content-Type', 'application/json')
+      res.write(JSON.stringify({address:req.params.dest,amount:req.body.amount}));
+      res.end();
+    } catch (e) {
+      res.setHeader('Content-Type', 'application/json')
+      res.write(JSON.stringify({error: e}));
+      res.end();
+    }
 })
 module.exports = router
