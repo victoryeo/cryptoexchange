@@ -32,6 +32,7 @@ router.post('/', async (req, res) => {
       password: process.env.password,
       otp: "000000",
     });
+    // get access token
     const access_token = await newbitgo.addAccessToken({
       otp: "000000",
       label: "Admin Access Token",
@@ -69,7 +70,7 @@ router.post('/', async (req, res) => {
       "passphrase": "hellobitgo",
       "label": "firstwallet"
     };
-    // create a btc wallet
+    // create a tbtc wallet
     const newWallet = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
     console.dir(newWallet);
     app.locals.wallet = newWallet
