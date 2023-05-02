@@ -4,5 +4,11 @@ This is demo app using BitGo API
 curl -X GET http://localhost:8081
 
 ### to initialise bitgo api
-#### you need to authorise your IP address and get a BitGo API token
+#### you need to get a BitGo API token
 curl -X POST http://localhost:8081
+
+### to get tbtc address
+curl -X GET http://localhost:8081/address
+
+### to send tbtc to destination
+curl -X POST http://localhost:8081/send/2NCykwAEJnbktzbyxguAZo7qHCawGqduJYs
