@@ -1,5 +1,5 @@
 const express       = require('express')
-const BitGo = require('bitgo')
+const { BitGo } = require('bitgo')
 const { BitGoAPI } = require('@bitgo/sdk-api');
 const { Tbtc } = require('@bitgo/sdk-coin-btc');
 require('dotenv').config()
@@ -60,14 +60,19 @@ router.post('/', async (req, res) => {
     });
     console.log(access_token);
 
-    /*const btc_params = {
+    // Initialize the wallet
+    const bitgo = new BitGo({
+      accessToken: access_token.token,
+      env: 'test',
+    });
+    const btc_params = {
       "passphrase": "hellobitgo",
       "label": "firstwallet"
     };
     // create a btc wallet
-    const { wallet } = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
-    console.dir(wallet);
-    app.locals.wallet = wallet*/
+    const newWallet = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
+    console.dir(newWallet);
+    app.locals.wallet = newWallet
 
     app.locals.holder = "testwallet"
     res.setHeader('Content-Type', 'application/json')
