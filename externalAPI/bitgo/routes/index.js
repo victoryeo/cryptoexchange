@@ -1,10 +1,12 @@
 const express       = require('express')
 const BitGo = require('bitgo')
+const { BitGoAPI } = require('@bitgo/sdk-api');
 require('dotenv').config()
 
 // init the sdk
-const bitgo = new BitGo.BitGo({ env: process.env.mode,
-    accessToken: process.env.accessToken4 });
+const newbitgo = new BitGoAPI({ env: 'test' });
+//const bitgo = new BitGo.BitGo({ env: process.env.mode,
+//    accessToken: process.env.accessToken4 });
   
 const router = express.Router()
 const app = express()
@@ -18,17 +20,50 @@ router.get('/', (req, res) => {
 
 router.post('/', async (req, res) => {
     console.log("Init Bitgo")
-    let result = await bitgo.session();
-    console.dir(result);
-  
-    const btc_params = {
+    //let result = await bitgo.session();
+    //console.dir(result);
+    console.log(process.env.username)
+    const auth_res = await newbitgo.authenticate({
+      username: process.env.username,
+      password: process.env.password,
+      otp: "000000",
+    });
+    const access_token = await newbitgo.addAccessToken({
+      otp: "000000",
+      label: "Admin Access Token",
+      scope: [
+        "metamask_institutional",
+        "openid",
+        "pending_approval_update",
+        "portfolio_view",
+        "profile",
+        "trade_trade",
+        "trade_view",
+        "wallet_approve_all",
+        "wallet_create",
+        "wallet_edit_all",
+        "wallet_manage_all",
+        "wallet_spend_all",
+        "wallet_view_all",
+      ],
+      // Optional: Set a spending limit.
+      spendingLimits: [
+        {
+          coin: "tbtc",
+          txValueLimit: "1000000000", // 10 TBTC (10 * 1e8)
+        },
+      ],
+    });
+    console.log(access_token);
+
+    /*const btc_params = {
       "passphrase": "hellobitgo",
       "label": "firstwallet"
     };
     // create a btc wallet
     const { wallet } = await bitgo.coin('tbtc').wallets().generateWallet(btc_params);
     console.dir(wallet);
-    app.locals.wallet = wallet
+    app.locals.wallet = wallet*/
 
     app.locals.holder = "testwallet"
     res.setHeader('Content-Type', 'application/json')
